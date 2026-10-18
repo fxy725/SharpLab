@@ -12,4 +12,4 @@
 	url = https://github.com/ashmind/Mobius.ILasm
 [submodule "source/#external/mirrorsharp-codemirror-6-preview"]
 	path = "source/#external/mirrorsharp-codemirror-6-preview"
-	url = https://github.com/ashmind/mirrorsharp.git
+	url = https://github.com/fxy725/mirrorsharp.git
