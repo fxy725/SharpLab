@@ -58,6 +58,41 @@ The full legacy application and browser interaction suite are separate from
 these focused regression tests. This change does not claim to fix every possible
 editor synchronization or completion race.
 
+## Local startup (verified on Windows, 2026-10-18)
+
+```powershell
+cd "D:\Project\Tool Project\SharpLab"
+.\sl.bat setup  # first checkout only
+.\sl.bat run
+```
+
+Open http://localhost:44100/. Keep the terminal running; Ctrl+C stops only the
+services started by that command. Logs are saved in the ignored `!local` folder.
+After building once, `sl run -SkipBuild` starts the existing binaries and assets.
+The runner reports an occupied port instead of terminating an existing service.
+
+The startup fixes include npm 12-compatible local dependency paths/lockfile,
+HTTPS for the pinned Git dependency, and project-specific permission to install
+that direct Git dependency and the required sharp/esbuild native components.
+The runner starts the actual web server, asset server, Azurite and sandbox manager
+directly, without Tye. It also installs the sandbox's existing read/execute ACL.
+
+Validation completed locally:
+
+- Full frontend build, TypeScript checking and lint passed.
+- WebApp.Server and Container.Manager built with zero warnings/errors.
+- Browser accepted `Console` with Tab and `WriteLine` with `(` while retaining
+  the preceding code and comment.
+- Real HTTP and WebSocket checks verified prefix/suffix preservation, C#
+  compilation, and `Console.WriteLine` execution in the sandbox.
+- npm 12 accepted `npm ci --dry-run` against the repaired lockfile.
+
+With the website running, repeat the HTTP/WebSocket checks using Node.js 22+:
+
+```powershell
+node tests/local-smoke.cjs
+```
+
 ## Hosting
 
 No website deployment is configured for this fork. GitHub Actions runs regression

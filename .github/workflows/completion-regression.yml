@@ -27,3 +27,34 @@ jobs:
       - name: Run completion data loss regression tests
         run: dotnet test tests/CompletionRegression/CompletionRegression.csproj --no-restore --configuration Release --logger trx
 
+  frontend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      GIT_LFS_SKIP_SMUDGE: '1'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.22.3'
+      - name: Use the validated npm version
+        run: npm install --global npm@12.1.0 --no-audit --no-fund
+      - name: Build stable editor dependency
+        working-directory: source/#external/mirrorsharp/WebAssets
+        run: |
+          npm ci --no-audit --no-fund
+          npm run build
+      - name: Build preview editor dependency
+        working-directory: source/#external/mirrorsharp-codemirror-6-preview/WebAssets
+        run: |
+          npm ci --no-audit --no-fund
+          npm run build
+      - name: Install frontend from the repaired lockfile
+        working-directory: source/WebApp
+        run: npm ci --no-audit --no-fund
+      - name: Build and check the frontend
+        working-directory: source/WebApp
+        run: npm run build
+

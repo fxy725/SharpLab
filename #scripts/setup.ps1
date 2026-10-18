@@ -1,6 +1,10 @@
 Set-StrictMode -Version 2
 $ErrorActionPreference = 'Stop'
 
+# The restored legacy command-line tools may target older .NET runtimes.
+if (!$env:DOTNET_ROLL_FORWARD) { $env:DOTNET_ROLL_FORWARD = 'Major' }
+$env:DOTNET_SYSTEM_NET_HTTP_SOCKETSHTTPHANDLER_HTTP2SUPPORT = 'false'
+
 Write-Host "Fetching submodules" -ForegroundColor White
 git submodule update --recursive --init
 if ($LastExitCode -ne 0) {
