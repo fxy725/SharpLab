@@ -1,0 +1,29 @@
+name: Completion regression
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      GIT_LFS_SKIP_SMUDGE: '1'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+      - name: Restore locked regression dependencies
+        run: dotnet restore tests/CompletionRegression/CompletionRegression.csproj --locked-mode -p:NuGetAudit=false
+      - name: Run completion data loss regression tests
+        run: dotnet test tests/CompletionRegression/CompletionRegression.csproj --no-restore --configuration Release --logger trx
+
